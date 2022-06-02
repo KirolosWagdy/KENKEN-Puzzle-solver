@@ -38,7 +38,34 @@ def get_duplicates(x, y):
             line.append(one)
     return line
 
+def merge_cells(board, size):
+    points_draw = convert_coord(board, size)
+    i = 0
+    j = 0
+    l = []
+    while i < len(points_draw):
+        if len(points_draw[i]) > 1:
+            while j < len(points_draw[i]) - 1:
+                line = get_duplicates(points_draw[i][j], points_draw[i][j + 1])
+                if len(line) != 0:
+                    l.append(line)
+                j += 1
+            if len(points_draw[i]) == 4:  # if cages are square
+                line = get_duplicates(points_draw[i][0], points_draw[i][3])
+                if len(line) != 0:
+                    l.append(line)
+        j = 0
+        i += 1
+    return l
+
+
+def get_coord(t, size):
+    step = int(506 / size)
+    y = (t[1] - 1) * step
+    x = (t[0] - 1) * step
+    return (y, x)
     
+        
 def selected(event):
     global size
     if clicked.get() == '3x3':
