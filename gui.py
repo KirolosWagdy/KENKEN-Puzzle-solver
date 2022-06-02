@@ -26,6 +26,28 @@ def selected(event):
         size = 9
         draw(9)
 
+def begin_game():
+    algorithm_type1.pack(side=tk.TOP)
+    algorithm_type2.pack(side=tk.TOP)
+    algorithm_type3.pack(side=tk.TOP)
+    solve_button.pack(pady=20, padx=20)
+    play_again_button.pack(pady=20, padx=20)
+    selected(event=clicked)
+    drop.pack_forget()
+    myButton.pack_forget()
+
+
+def play_again():
+    algorithm_type1.pack_forget()
+    algorithm_type2.pack_forget()
+    algorithm_type3.pack_forget()
+    canvas.pack_forget()
+    solve_button.pack_forget()
+    play_again_button.pack_forget()
+    drop.pack(pady=20)
+    myButton.pack(pady=20)
+    v.set(0)
+
 
 # root initiallization
 root = tk.Tk()
@@ -64,5 +86,11 @@ play_again_button = Button(root, text="Play Again", command=play_again)
 drop.pack(pady=20)
 myButton.pack(pady=20)
 
+# radio buttons for choosing the algorithm
+v = IntVar()
+v.set(0)
+algorithm_type1 = Radiobutton(root, text="Back Tracking", variable=v, value=1)
+algorithm_type2 = Radiobutton(root, text="Forward checking", variable=v, value=2)
+algorithm_type3 = Radiobutton(root, text="Arc consistency", variable=v, value=3)
 
 root.mainloop()
