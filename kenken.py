@@ -48,3 +48,37 @@ def check_board(size, cliques):
     if violations:
         print("Positions", violations, "does not belong to any clique", file=stderr)
         exit(4)
+
+def conflicting(A, a, B, b):
+    for i in range(len(A)):
+        for j in range(len(B)):
+            # if at the same column or the same row and equal to each other
+            if ((A[i][0] == B[j][0]) != (A[i][1] == B[j][1])) and a[i] == b[j]:
+                return True
+    return False
+
+def valid_domains(domains,members,operator,target):
+    """
+    Return the valid domains for members
+    """
+    domains_element=[]
+    for values in  domains[members]:
+        for p in permutations(values):
+            if reduce(operation(operator), p) == target:
+                if not conflicting(members, values, members, values):
+                    domains_element.append(values)
+    return domains_element
+def get_domains(size, cliques):
+    """
+    For every clique in cliques:
+        1)Initialize the domain of each variable with all combinations of values from 1 -> board-size
+        2)Discard any values that causes conflicts
+    """
+    domains = {}
+    for clique in cliques:
+        members, operator, target = clique
+        # all possible domains
+        domains[members] = list(product(range(1, size + 1), repeat=len(members)))
+        # all valid domains
+        domains[members] = valid_domains(domains,members,operator,target)
+    return domains
