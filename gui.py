@@ -1,7 +1,44 @@
 from tkinter import *
 import tkinter as tk
 
+def convert_coord(board, size):
+    i = 0
+    j = 0
+    step = int(506 / size)
+    l = []
+    points_draw = []
+    k = []
+    while i < len(board):
+        cage = board[i][0]
+        while j < len(cage):
+            y = (cage[j][0] - 1) * step
+            x = (cage[j][1] - 1) * step
+            # one rectangle
+            l.append((x, y))
+            l.append((x + step, y))
+            l.append((x, y + step))
+            l.append((x + step, y + step))
+            k.append(l)
+            j += 1
+            l = []
+        points_draw.append(k)
+        k = []
+        j = 0
+        i += 1
+    return points_draw
 
+
+def get_duplicates(x, y):
+    temp = x + y
+    unique_temp = list(set(temp))
+    line = []
+    for one in unique_temp:
+        count = temp.count(one)
+        if count > 1 and one not in line:
+            line.append(one)
+    return line
+
+    
 def selected(event):
     global size
     if clicked.get() == '3x3':
