@@ -82,3 +82,29 @@ def get_domains(size, cliques):
         # all valid domains
         domains[members] = valid_domains(domains,members,operator,target)
     return domains
+
+def get_neighbors(cliques):
+    """
+    Determine the neighbors of each variable 
+        For each clique 
+         1)Start with empty list of neighbours
+         2)For every clique other than the current one
+            if they can cause conflict they are considered neighbors
+    """
+    neighbors = {}
+    for members, _, _ in cliques:
+        neighbors[members] = []
+    for A, _, _ in cliques:
+        for B, _, _ in cliques:
+            if A != B and B not in neighbors[A]:
+                #check if they are in the same row or the same column
+                for i in range(len(A)):
+                    for j in range(len(B)):
+                        # add neighbors if at the same column or the same row and equal to each other
+                        if ((A[i][0] == B[j][0]) != (A[i][1] == B[j][1])):
+                            neighbors[A].append(B)
+                            neighbors[B].append(A)
+    return neighbors
+
+
+
