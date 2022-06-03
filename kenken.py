@@ -1,4 +1,5 @@
 from sqlalchemy import false, true
+import csp
 from sys import stderr
 from itertools import product, permutations
 from functools import reduce
@@ -107,4 +108,50 @@ def get_neighbors(cliques):
     return neighbors
 
 
+class Kenken(csp.CSP):
+    def __init__(self, size, cliques):
+        """
+        A clique example: (((x1, y1), ..., (xn, yn)), <operation>, <result>)
+        """
+        #Check that the board is valid
+        check_board(size, cliques)
+        variables=[]
+        for clique1 in cliques:
+            variables.append(clique1[0])
+        domains = get_domains(size, cliques)
+        neighbors = get_neighbors(cliques)
+        print()
+        csp.CSP.__init__(self, variables, domains, neighbors, self.constraint)
+        self.size = size
+        # Used in Perfomance_measureing
+        self.checks = 0
+        # Used in displaying
+        self.padding = 0
+        self.meta = {}
+        for members, operator, target in cliques:
+            self.meta[members] = (operator, target)
+            self.padding = max(self.padding, len(str(target)))        
+    def constraint(self, A, a, B, b):
+        """
+      Variables that share same row or column must not have the same value
+        """
+        self.checks += 1
+        return A == B or not conflicting(A, a, B, b)
 
+
+def main_algorithm(size, cliques,algorithm="BT"):
+    """
+    BT    -> Backtracking search
+    BT+FC -> Backtracking search with Forward Checking
+    BT+AC -> Backtracking search with Arc Consistency
+    """
+    ken = Kenken(size, cliques)
+    if algorithm=="BT":
+        assignment = csp.backtracking_search(ken)
+    elif algorithm=="BT+FC":
+        assignment = csp.backtracking_search(ken,inference=csp.forward_checking)
+    elif algorithm=="BT+AC":
+        assignment = csp.backtracking_search(ken,inference=csp.mac)
+    else:
+        print("unexpected algorithm")
+    return assignment
