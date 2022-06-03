@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter as tk
 from generator import generate_board
+from kenken import main_algorithm
 
 
 def convert_coord(board, size):
@@ -189,6 +190,7 @@ def selected(event):
         size = 9
         draw(9)
 
+
 def pop_window():
     pop = tk.Toplevel()
     pop.title("Error")
@@ -202,39 +204,58 @@ def pop_window():
     frame = Frame(pop, bg="gray71")
     frame.pack(pady=10)
 
+
 def solve():
     bk = False
     fc = False
     ac = False
+    flag = 0
     color = ['red', 'blue', '#03c03c']
-    #write solution
-    solution = dict_value(assignment)
-    count = 0
-    step = int(506 / size)
-    a = step / 2
-    b = step / 1.5
-    for i in range(0, 506, step):
-        for j in range(0, 506, step):
-            x = j + step
-            y = i + step
-            count += 1
-            if (x > 506) or (y > 506):
-                continue
-            else:
-                if bk == True:
-                    canvas.create_text((a,b), text=solution[count-1], fill=color[0], font=('Helvetica 20'))
-                if fc == True:
-                    canvas.create_text((a,b), text=solution[count-1], fill=color[1], font=('Helvetica 20'))
-                if ac == True:
-                    canvas.create_text((a,b), text=solution[count-1], fill=color[2], font=('Helvetica 20'))
-                a += step
-        count -= 1
+    if v.get() == 1:
+        bk = True
+        # print("BT")
+        assignment = main_algorithm(size, board, "BT")
+    elif v.get() == 2:
+        fc = True
+        # print("BT+FC")
+        assignment = main_algorithm(size, board, "BT+FC")
+    elif v.get() == 3:
+        ac = True
+        # print("BT+AC")
+        assignment = main_algorithm(size, board, "BT+AC")
+    elif v.get() == 0:
+        pop_window()
+        flag = 1
+
+    if flag == 0:
+        #write solution
+        solution = dict_value(assignment)
+        count = 0
+        step = int(506 / size)
         a = step / 2
-        b += step
-    bk = False
-    fc = False
-    ac = False
-    canvas.pack()
+        b = step / 1.5
+        for i in range(0, 506, step):
+            for j in range(0, 506, step):
+                x = j + step
+                y = i + step
+                count += 1
+                if (x > 506) or (y > 506):
+                    continue
+                else:
+                    if bk == True:
+                        canvas.create_text((a,b), text=solution[count-1], fill=color[0], font=('Helvetica 20'))
+                    if fc == True:
+                        canvas.create_text((a,b), text=solution[count-1], fill=color[1], font=('Helvetica 20'))
+                    if ac == True:
+                        canvas.create_text((a,b), text=solution[count-1], fill=color[2], font=('Helvetica 20'))
+                    a += step
+            count -= 1
+            a = step / 2
+            b += step
+        bk = False
+        fc = False
+        ac = False
+        canvas.pack()
 
 
 def begin_game():
