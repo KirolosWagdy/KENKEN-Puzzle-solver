@@ -69,6 +69,21 @@ def get_coord(t, size):
     return (y, x)
 
 
+def dict_value(diction):
+    list1 = []
+    list_value = []
+
+    for key, value in diction.items():
+        for c in range(len(key)):
+            list1.append((key[c], value[c]))
+
+    list1.sort()
+
+    for k in range(len(list1)):
+        list_value.append(list1[k][1])
+    return list_value
+
+
 def draw(size):
     global board
     board = generate_board(size)
