@@ -189,6 +189,53 @@ def selected(event):
         size = 9
         draw(9)
 
+def pop_window():
+    pop = tk.Toplevel()
+    pop.title("Error")
+    pop.geometry("300x150")
+    pop.config(bg="white")
+    # Create a Label Text
+    label = Label(pop, text="Please choose an algorithm \n to solve with.",
+    font=('Aerial', 15))
+    label.pack(pady=20)
+    # Add a Frame
+    frame = Frame(pop, bg="gray71")
+    frame.pack(pady=10)
+
+def solve():
+    bk = False
+    fc = False
+    ac = False
+    color = ['red', 'blue', '#03c03c']
+    #write solution
+    solution = dict_value(assignment)
+    count = 0
+    step = int(506 / size)
+    a = step / 2
+    b = step / 1.5
+    for i in range(0, 506, step):
+        for j in range(0, 506, step):
+            x = j + step
+            y = i + step
+            count += 1
+            if (x > 506) or (y > 506):
+                continue
+            else:
+                if bk == True:
+                    canvas.create_text((a,b), text=solution[count-1], fill=color[0], font=('Helvetica 20'))
+                if fc == True:
+                    canvas.create_text((a,b), text=solution[count-1], fill=color[1], font=('Helvetica 20'))
+                if ac == True:
+                    canvas.create_text((a,b), text=solution[count-1], fill=color[2], font=('Helvetica 20'))
+                a += step
+        count -= 1
+        a = step / 2
+        b += step
+    bk = False
+    fc = False
+    ac = False
+    canvas.pack()
+
 
 def begin_game():
     algorithm_type1.pack(side=tk.TOP)
