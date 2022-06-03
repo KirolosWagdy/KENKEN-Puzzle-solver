@@ -1,5 +1,7 @@
 from tkinter import *
 import tkinter as tk
+from generator import generate_board
+
 
 def convert_coord(board, size):
     i = 0
@@ -38,6 +40,7 @@ def get_duplicates(x, y):
             line.append(one)
     return line
 
+
 def merge_cells(board, size):
     points_draw = convert_coord(board, size)
     i = 0
@@ -64,8 +67,89 @@ def get_coord(t, size):
     y = (t[1] - 1) * step
     x = (t[0] - 1) * step
     return (y, x)
-    
+
+
+def draw(size):
+    global board
+    board = generate_board(size)
+    points = merge_cells(board, size)
+    canvas.delete('all')
+    # create squares on board
+    count = 0
+    step = int(506 / size)
+    cage_x = step / 3.25
+    cage_x1 = step / 2.5
+    cage_y = step / 4
+    a = step / 2
+    b = step / 2
+    font_size = int(((step * 15) / (168)) * 2)
+   #draw board squares
+    for i in range(0, 506, step):
+        for j in range(0, 506, step):
+            x = j + step
+            y = i + step
+            count += 1
+            if size == 7 or size == 8 or size == 9:
+                canvas.create_rectangle(j, i, x, y, width=4)
+            else:
+                canvas.create_rectangle(j, i, x, y, width=7)
+            if (x > 506) or (y > 506):
+                continue
+            else:
+                a += step
+        count -= 1
+        a = step / 2
+        b += step
+    #write operation 
+    for i in range(len(board)):
+        numb = abs(board[i][2])
+        opp = board[i][1]
+        textt = str(numb) + opp
+        first = board[i][0][0]
+        for j in range(len(board[i][0])):            
+            mini = min(first, board[i][0][j])
+            first = mini
+        co = get_coord(mini, size)
+        if size == 8 or size == 9:
+            position_x = co[0] + cage_x1
+            position_y = co[1] + cage_y
+        else:
+            position_x = co[0] + cage_x
+            position_y = co[1] + cage_y
         
+        if opp == '.':
+            canvas.create_text((position_x, position_y), text=str(numb), font=(f'Helvetica {font_size} bold'))
+            # continue
+        elif opp == '*':
+            opp = '×'
+            textt = str(numb) + opp
+            canvas.create_text((position_x, position_y), text=textt, font=(f'Helvetica {font_size} bold'))
+        elif opp == '/':
+            opp = '÷'
+            textt = str(numb) + opp
+            canvas.create_text((position_x, position_y), text=textt, font=(f'Helvetica {font_size} bold'))
+        elif opp == '-':
+            opp = '–'
+            textt = str(numb) + opp
+            canvas.create_text((position_x, position_y), text=textt, font=(f'Helvetica {font_size} bold'))
+        else:
+            canvas.create_text((position_x, position_y), text=textt, font=(f'Helvetica {font_size} bold'))
+    #merge cells - draw cages
+    for point in points:
+        if size == 7 or size == 8 or size == 9:
+            canvas.create_line(point[0][0], point[0][1], point[1][0], point[1][1], width=4, fill="white")
+            canvas.create_line(point[0][0], point[0][1], point[1][0], point[1][1])
+        else:
+            canvas.create_line(point[0][0], point[0][1], point[1][0], point[1][1], width=7, fill="white")
+            canvas.create_line(point[0][0], point[0][1], point[1][0], point[1][1])
+    #draw outline 
+    canvas.create_line(0, 505, 0, 0, width=10)
+    canvas.create_line(0, 505, 505, 505, width=10)
+    canvas.create_line(0, 0, 505, 0, width=10)
+    canvas.create_line(505, 505, 505, 0, width=10)
+    canvas.pack()
+
+
 def selected(event):
     global size
     if clicked.get() == '3x3':
@@ -89,6 +173,7 @@ def selected(event):
     elif clicked.get() == '9x9':
         size = 9
         draw(9)
+
 
 def begin_game():
     algorithm_type1.pack(side=tk.TOP)
