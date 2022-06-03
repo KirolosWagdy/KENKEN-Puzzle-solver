@@ -67,3 +67,97 @@ class CSP():
         """Add {var: val} to dictionary and delete the old value"""
         assignment[var] = val
         self.nassigns += 1
+
+    def unassign(self, var, assignment):
+        """Delete {var: val} from dictionary"""
+        if var in assignment:
+            del assignment[var]
+
+    def prune(self, var, value, removals):
+        """prune some value from variables"""
+        self.curr_domains[var].remove(value)
+        if removals is not None:
+            removals.append((var, value))
+
+    def restore(self, removals):
+        """return the removed variables to the current domains"""
+        for B, b in removals:
+            self.curr_domains[B].append(b)
+
+def Remove_inconsistent_values(csp, Xi, Xj, removals):
+    """Return true if all values not valid for the constraints"""
+    revised = False
+    for x in csp.curr_domains[Xi][:]:
+        # If Xi=x conflicts with Xj=y for every possible y, eliminate Xi=x
+        if all(not csp.constraints(Xi, x, Xj, y) for y in csp.curr_domains[Xj]):
+            csp.prune(Xi, x, removals)
+            revised = True
+    return revised
+
+def first_unassigned_variable(assignment, csp):
+    """Return the first variable"""
+    var=[]
+    for var1 in csp.variables:
+        if var1 not in assignment:
+            var.append(var1)
+    return first(var)
+
+def unordered_domain_values(var, assignment, csp):
+    """Retuen the default order order of value"""
+    return csp.choices(var)
+
+def no_inference(csp, var, value, assignment, removals):
+    return True
+
+def forward_checking(csp, var, value, assignment, removals):
+    """Remove neighbor values that don't satisfy the constraints"""
+    csp.support_pruning()
+    for B in csp.neighbors[var]:
+        if B not in assignment:
+            for b in csp.curr_domains[B][:]:
+                if not csp.constraints(var, value, B, b):
+                    csp.prune(B, b, removals)
+            if not csp.curr_domains[B]:
+                return False
+    return True
+
+def mac(csp, var, value, assignment, removals):
+    """for arc consistency"""
+    queue=[]
+    for neighbor in csp.neighbors[var]:
+        queue.append((neighbor, var))
+    if queue is None:
+        queue = [(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbors[Xi]]
+    csp.support_pruning()
+    while queue:
+        (Xi, Xj) = queue.pop()
+        if Remove_inconsistent_values(csp, Xi, Xj, removals):
+            if not csp.curr_domains[Xi]:
+                return False
+            for Xk in csp.neighbors[Xi]:
+                if Xk != Xj:
+                    queue.append((Xk, Xi))
+    return True
+
+def backtracking_search(csp,
+                        select_unassigned_variable=first_unassigned_variable,
+                        order_domain_values=unordered_domain_values,
+                        inference=no_inference):
+    def backtrack(assignment):
+        if len(assignment) == len(csp.variables):
+            return assignment
+        var = select_unassigned_variable(assignment, csp)
+        for value in order_domain_values(var, assignment, csp):
+            if 0 == csp.nconflicts(var, value, assignment):
+                csp.assign(var, value, assignment)
+                removals = csp.suppose(var, value)
+                if inference(csp, var, value, assignment, removals):
+                    result = backtrack(assignment)
+                    if result is not None:
+                        return result
+                csp.restore(removals)
+        csp.unassign(var, assignment)
+        return None
+    result = backtrack({})
+    assert result is None or csp.goal_test(result)
+    return result
